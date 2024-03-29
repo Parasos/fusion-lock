@@ -60,7 +60,7 @@ These are the requirements on which the smart contract is designed.
 
 **For Owner:**
 - The owner of the FusionLock contract will be a [Safe multisig](https://safe.global/).
-- The owner can pause and resume all user functionalities.
+- The owner can pause and resume all user functionalities. An exception is made for `withdrawDepositsToL1` which is made unpausable to prevent the owner from being able to take user's funds hostage.
 - The owner can reduce `withdrawalStartTime`.
 - The owner can modify the global `bridgeProxyAddress`.
 - The owner can set a L1 bridge override for any of the allowed tokens.
