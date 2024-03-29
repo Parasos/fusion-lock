@@ -4,7 +4,7 @@ export PRIVATE_KEY=0x<exported-privatekey>
 export RPC_URL=<eth-rpc-url>
 export WITHDRAWAL_START_TIME=1709463387 # GMT: Sunday, 3 March 2024 10:56:27, expected Unix epoch format in seconds
 export OWNER=<set-owner-address>
-export NUM_TOKENS=12 # Following tokens are also mentioned in the readme
+export NUM_TOKENS=13 # Following tokens are also mentioned in the readme
 export TOKEN_0=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0 # wstETH
 export TOKEN_1=0xae78736cd615f374d3085123a210448e74fc6393 # rETH
 export TOKEN_2=0x18084fba666a33d37592fa2633fd49a74dd93a88 # tBTC v2
@@ -17,5 +17,6 @@ export TOKEN_8=0xbdab72602e9ad40fc6a6852caf43258113b8f7a5 # eSOV
 export TOKEN_9=0x7122985656e38bdc0302db86685bb972b145bd3c # STONE
 export TOKEN_10=0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1 # ARB
 export TOKEN_11=0x4c9edd5852cd905f086c759e8383e09bff1e68b3 # USDe
+export TOKEN_12=0xe7c3755482d0da522678af05945062d4427e0923 # ALEX
 
 forge script script/FusionLock.s.sol --rpc-url=$RPC_URL --broadcast

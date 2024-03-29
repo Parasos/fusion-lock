@@ -82,6 +82,7 @@ These are the requirements on which the smart contract is designed.
 | eDLLR      | [0xbdbb63f938c8961af31ead3deba5c96e6a323dd1](https://etherscan.io/address/0xbdbb63f938c8961af31ead3deba5c96e6a323dd1) |
 | eSOV       | [0xbdab72602e9ad40fc6a6852caf43258113b8f7a5](https://etherscan.io/token/0xbdab72602e9ad40fc6a6852caf43258113b8f7a5)  |
 | ARB        | [0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1](https://etherscan.io/token/0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1)  |
+| ALEX       | [0xe7c3755482d0da522678af05945062d4427e0923](https://etherscan.io/token/0xe7c3755482d0da522678af05945062d4427e0923)  |
 
 **For User:**
 - The user locks funds within the contract through a deposit.
