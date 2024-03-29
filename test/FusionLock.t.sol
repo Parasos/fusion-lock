@@ -103,7 +103,7 @@ contract FusionLockTest is FusionLock, Test {
             // keep owner of L2 token as bridge address
             ArbitaryErc20 l2Token = new ArbitaryErc20(l2TokenName, symbol, bridgeProxyAddress);
 
-            this.allow(address(listErc20Tokens[i]), address(l2Token));
+            this.allow(address(listErc20Tokens[i]), address(l2Token), address(0x00));
 
             vm.stopPrank();
         }
@@ -862,7 +862,7 @@ contract FusionLockTest is FusionLock, Test {
         vm.startPrank(sudoOwner);
         ArbitaryErc20 newToken = new ArbitaryErc20("Token X", "TokX", msg.sender);
         assertFalse(this.getTokenInfo(address(newToken)).isAllowed);
-        this.allow(address(newToken), address(0x00));
+        this.allow(address(newToken), address(0x00), address(0x00));
         assertTrue(this.getTokenInfo(address(newToken)).isAllowed);
     }
 
@@ -871,7 +871,7 @@ contract FusionLockTest is FusionLock, Test {
         vm.warp(this.withdrawalStartTime());
         ArbitaryErc20 newToken = new ArbitaryErc20("Token X", "TokX", msg.sender);
         vm.expectRevert("Withdrawal has started, token allowance cannot be modified");
-        this.allow(address(newToken), address(0x00));
+        this.allow(address(newToken), address(0x00), address(0x00));
     }
 
     function test_saveTokens() public {

@@ -49,6 +49,7 @@ contract FusionLock is Ownable, Pausable {
     struct TokenInfo {
         bool isAllowed; // Flag indicating whether the token is allowed for deposit.
         address l2TokenAddress; // Address of the corresponding token on Layer 2.
+        address l1BridgeAddressOverride; // Optional address to use for bridging to L2.
     }
 
     // Struct to hold L1 and L2 token addresses.
@@ -87,10 +88,10 @@ contract FusionLock is Ownable, Pausable {
         withdrawalStartTime = setWithdrawalStartTime;
 
         for (uint256 tokenId = 0; tokenId < allowTokens.length; tokenId++) {
-            _allow(allowTokens[tokenId], address(0x00));
+            _allow(allowTokens[tokenId], address(0x00), address(0x00));
         }
         // allow eth by default
-        _allow(ETH_TOKEN_ADDRESS, address(0x00));
+        _allow(ETH_TOKEN_ADDRESS, address(0x00), address(0x00));
     }
 
     /**
@@ -172,17 +173,22 @@ contract FusionLock is Ownable, Pausable {
         // check l2 token address set.
         require(token == ETH_TOKEN_ADDRESS || tokenInfo.l2TokenAddress != address(0x00), "L2 token address not set");
 
+        address bridgeAddress = bridgeProxyAddress;
+        if (tokenInfo.l1BridgeAddressOverride != address(0x00)) {
+            bridgeAddress = tokenInfo.l1BridgeAddressOverride;
+        }
+
         deposits[msg.sender][token] = 0;
         totalDeposits[token] -= transferAmount;
 
         if (token == ETH_TOKEN_ADDRESS) {
             // Bridge Ether to Layer 2.
-            BridgeInterface(bridgeProxyAddress).depositETHTo{value: transferAmount}(msg.sender, minGasLimit, hex"");
+            BridgeInterface(bridgeAddress).depositETHTo{value: transferAmount}(msg.sender, minGasLimit, hex"");
         } else {
             // Approve tokens for transfer to the bridge.
-            IERC20(token).approve(bridgeProxyAddress, transferAmount);
+            IERC20(token).approve(bridgeAddress, transferAmount);
             // Bridge ERC20 tokens to Layer 2.
-            BridgeInterface(bridgeProxyAddress).depositERC20To(
+            BridgeInterface(bridgeAddress).depositERC20To(
                 token, tokenInfo.l2TokenAddress, msg.sender, transferAmount, minGasLimit, hex""
             );
         }
@@ -222,10 +228,17 @@ contract FusionLock is Ownable, Pausable {
      * This function allows the contract owner to allow specific ERC20 tokens for deposit.
      * @param l1TokenAddress Address of the ERC20 token to allow on Layer 1.
      * @param l2TokenAddress Address of the corresponding token on Layer 2.
+     * @param l1BridgeAddressOverride Address of the corresponding bridge to use for this token.
+     *                                Can be 0 to use the default. This should be used for tokens
+     *                                that cannot use the L1StandardBridge contract. Note that the
+     *                                override is expected to implement the same BridgeInterface.
      */
-    function allow(address l1TokenAddress, address l2TokenAddress) external onlyOwner {
+    function allow(address l1TokenAddress, address l2TokenAddress, address l1BridgeAddressOverride)
+        external
+        onlyOwner
+    {
         require(!isWithdrawalTimeStarted(), "Withdrawal has started, token allowance cannot be modified");
-        _allow(l1TokenAddress, l2TokenAddress);
+        _allow(l1TokenAddress, l2TokenAddress, l1BridgeAddressOverride);
     }
 
     /**
@@ -233,9 +246,11 @@ contract FusionLock is Ownable, Pausable {
      * This function updates the allowedTokens mapping with the provided token information.
      * @param l1TokenAddress Address of the ERC20 token to allow.
      * @param l2TokenAddress Address of the corresponding token on Layer 2.
+     * @param l1BridgeAddressOverride Address of the corresponding bridge to use for this token.
+     *                                Can be 0 to use the default.
      */
-    function _allow(address l1TokenAddress, address l2TokenAddress) internal {
-        TokenInfo memory tokenInfo = TokenInfo(true, l2TokenAddress);
+    function _allow(address l1TokenAddress, address l2TokenAddress, address l1BridgeAddressOverride) internal {
+        TokenInfo memory tokenInfo = TokenInfo(true, l2TokenAddress, l1BridgeAddressOverride);
         allowedTokens[l1TokenAddress] = tokenInfo;
         emit TokenAllowed(l1TokenAddress, tokenInfo);
     }
