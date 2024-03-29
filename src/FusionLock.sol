@@ -141,8 +141,12 @@ contract FusionLock is Ownable, Pausable {
         totalDeposits[token] -= transferAmount;
 
         if (token == ETH_TOKEN_ADDRESS) {
-            // Transfer Ether to the sender.
-            payable(msg.sender).transfer(transferAmount);
+            // Note: we use `call` rather than `transfer` because `transfer` forwards a fixed
+            // amount of gas (2300), which may not be enough if msg.sender is a smart contract.
+            // We should be OK against reentrancy attacks since we follow the checks-effects-
+            // interactions pattern
+            (bool sent, /*bytes memory _data*/ ) = payable(msg.sender).call{value: transferAmount}("");
+            require(sent, "Failed to send eth");
         } else {
             // Transfer ERC20 tokens to the sender.
             IERC20(token).safeTransfer(msg.sender, transferAmount);
