@@ -78,10 +78,8 @@ These are the requirements on which the smart contract is designed.
 | USDT       | [0xdac17f958d2ee523a2206206994597c13d831ec7](https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7)  |
 | USDC       | [0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48)  |
 | DAI        | [0x6b175474e89094c44da98b954eedeac495271d0f](https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f)  |
-| USDe       | [0x4c9edd5852cd905f086c759e8383e09bff1e68b3](https://etherscan.io/address/0x4c9edd5852cd905f086c759e8383e09bff1e68b3) |
 | eDLLR      | [0xbdbb63f938c8961af31ead3deba5c96e6a323dd1](https://etherscan.io/address/0xbdbb63f938c8961af31ead3deba5c96e6a323dd1) |
 | eSOV       | [0xbdab72602e9ad40fc6a6852caf43258113b8f7a5](https://etherscan.io/token/0xbdab72602e9ad40fc6a6852caf43258113b8f7a5)  |
-| ARB        | [0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1](https://etherscan.io/token/0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1)  |
 | ALEX       | [0xe7c3755482d0da522678af05945062d4427e0923](https://etherscan.io/token/0xe7c3755482d0da522678af05945062d4427e0923)  |
 
 **For User:**

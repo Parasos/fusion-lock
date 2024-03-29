@@ -83,9 +83,9 @@ contract FusionLockTest is FusionLock, Test {
         // set l2 token
         ArbitaryErc20 l2Token = new ArbitaryErc20("Wrapped tBTC L2", "tBTC", bridgeProxyAddress);
 
-        TokenBridgingData[] memory tokenPairs = new TokenBridgingData[](1);
-        tokenPairs[0] = TokenBridgingData(address(token1), address(l2Token), address(0x00));
-        this.changeMultipleL2TokenData(tokenPairs);
+        TokenAddressPair[] memory tokenPairs = new TokenAddressPair[](1);
+        tokenPairs[0] = TokenAddressPair(address(token1), address(l2Token));
+        this.changeMultipleL2TokenAddresses(tokenPairs);
         // initially contract shouldn't hold any eth, required for test cases assertions
         vm.deal(address(this), 0 ether);
     }
@@ -933,33 +933,15 @@ contract FusionLockTest is FusionLock, Test {
         assertFalse(success, "Receive function should revert");
     }
 
-    function test_ChangeMultipleL2TokenDataWhenL1TokenNotAllowed() public {
+    function test_ChangeL2TokenAddressWhenL1TokenNotAllowed() public {
         ArbitaryErc20 notAllowedL1Token = new ArbitaryErc20("Wrapped Eth", "Eth", msg.sender);
         ArbitaryErc20 l2Token = new ArbitaryErc20("Wrapped L2 Eth", "L2Eth", msg.sender);
-        TokenBridgingData[] memory tokenPairs = new TokenBridgingData[](1);
-        tokenPairs[0] = TokenBridgingData(address(notAllowedL1Token), address(l2Token), address(0x00));
+        TokenAddressPair[] memory tokenPairs = new TokenAddressPair[](1);
+        tokenPairs[0] = TokenAddressPair(address(notAllowedL1Token), address(l2Token));
 
         // Expect revert with the given message when trying to change the L2 token address for an L1 token that is not allowed
-        vm.expectRevert("Need to allow token before changing token data");
-        this.changeMultipleL2TokenData(tokenPairs);
-    }
-
-    function test_ChangeMultipleL2TokenData() public {
-        address l1Token = address(0x0a);
-        address oldL2Token = address(0x01);
-        address oldL1Bridge = address(0x00);
-
-        this.allow(l1Token, oldL2Token, oldL1Bridge);
-
-        address newL2Token = address(0x02);
-        address newL1Bridge = address(0x03);
-        TokenBridgingData[] memory tokenData = new TokenBridgingData[](1);
-        tokenData[0] = TokenBridgingData(l1Token, newL2Token, newL1Bridge);
-        this.changeMultipleL2TokenData(tokenData);
-
-        require(allowedTokens[l1Token].isAllowed);
-        require(allowedTokens[l1Token].l2TokenAddress == newL2Token);
-        require(allowedTokens[l1Token].l1BridgeAddressOverride == newL1Bridge);
+        vm.expectRevert("Need to allow token before changing L2 address");
+        this.changeMultipleL2TokenAddresses(tokenPairs);
     }
 
     function test_CallOwnerFunctionsWithNonOwner() public {
@@ -979,10 +961,10 @@ contract FusionLockTest is FusionLock, Test {
         (success,) = address(vm).call(abi.encodeWithSignature("unpause()", true));
         assertFalse(success);
 
-        TokenBridgingData[] memory tokenPairs = new TokenBridgingData[](1);
-        tokenPairs[0] = TokenBridgingData(address(token1), address(token1), address(0x00));
+        TokenAddressPair[] memory tokenPairs = new TokenAddressPair[](1);
+        tokenPairs[0] = TokenAddressPair(address(token1), address(token1));
         (success,) =
-            address(vm).call(abi.encodeWithSignature("changeMultipleL2TokenData(TokenBridgingData[])", tokenPairs));
+            address(vm).call(abi.encodeWithSignature("changeMultipleL2TokenAddresses(TokenAddressPair[])", tokenPairs));
         assertFalse(success);
     }
 }
