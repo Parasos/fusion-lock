@@ -94,10 +94,8 @@ contract FusionLock is Ownable, Pausable {
     /**
      * @dev Modifier to check if deposit is allowed.
      * @param amount Amount of tokens being deposited.
-     * @param token Address of the token.
      */
-    modifier isDepositAllowed(uint256 amount, address token) {
-        require(allowedTokens[token].isAllowed, "Deposit token not allowed");
+    modifier isDepositAllowed(uint256 amount) {
         require(!isWithdrawalTimeStarted(), "Deposit time already ended");
         require(amount > 0, "Amount Should Be Greater Than Zero");
         _;
@@ -108,7 +106,9 @@ contract FusionLock is Ownable, Pausable {
      * @param token Address of the ERC20 token.
      * @param amount Amount of tokens to deposit.
      */
-    function depositERC20(address token, uint256 amount) external isDepositAllowed(amount, token) whenNotPaused {
+    function depositERC20(address token, uint256 amount) external isDepositAllowed(amount) whenNotPaused {
+        require(allowedTokens[token].isAllowed, "Deposit token not allowed");
+
         deposits[msg.sender][token] += amount;
         totalDeposits[token] += amount;
         // Transfer tokens to contract
@@ -121,7 +121,7 @@ contract FusionLock is Ownable, Pausable {
      * @dev Deposit Ether
      * Allows users to deposit Ether into the contract.
      */
-    function depositEth() external payable isDepositAllowed(msg.value, ETH_TOKEN_ADDRESS) whenNotPaused {
+    function depositEth() external payable isDepositAllowed(msg.value) whenNotPaused {
         // Increase the deposited Ether amount for the sender.
         deposits[msg.sender][ETH_TOKEN_ADDRESS] += msg.value;
         totalDeposits[ETH_TOKEN_ADDRESS] += msg.value;
