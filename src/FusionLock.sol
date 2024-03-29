@@ -134,9 +134,10 @@ contract FusionLock is Ownable, Pausable {
      * @param token Address of the token to withdraw.
      */
     function withdrawSingleDepositToL1(address token) internal {
-        require(deposits[msg.sender][token] != 0, "Withdrawal completed or token never deposited");
-
         uint256 transferAmount = deposits[msg.sender][token];
+
+        require(transferAmount != 0, "Withdrawal completed or token never deposited");
+
         deposits[msg.sender][token] = 0;
         totalDeposits[token] -= transferAmount;
 
@@ -160,7 +161,9 @@ contract FusionLock is Ownable, Pausable {
      * @param minGasLimit Minimum gas limit for the withdrawal transaction.
      */
     function withdrawSingleDepositToL2(address token, uint32 minGasLimit) internal {
-        require(deposits[msg.sender][token] != 0, "Withdrawal completed or token never deposited");
+        uint256 transferAmount = deposits[msg.sender][token];
+
+        require(transferAmount != 0, "Withdrawal completed or token never deposited");
 
         // Retrieve token information.
         TokenInfo memory tokenInfo = allowedTokens[token];
@@ -168,7 +171,6 @@ contract FusionLock is Ownable, Pausable {
         // check l2 token address set.
         require(token == ETH_TOKEN_ADDRESS || tokenInfo.l2TokenAddress != address(0x00), "L2 token address not set");
 
-        uint256 transferAmount = deposits[msg.sender][token];
         deposits[msg.sender][token] = 0;
         totalDeposits[token] -= transferAmount;
 
