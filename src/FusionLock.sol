@@ -163,7 +163,7 @@ contract FusionLock is Ownable, Pausable {
     /**
      * @dev Internal function to withdraw tokens to Layer 2.
      * @param token Address of the token to withdraw.
-     * @param minGasLimit Minimum gas limit for the withdrawal transaction.
+     * @param minGasLimit Minimum gas limit for each individual withdrawal transaction.
      * @param receiver The receiver of the funds on L2.
      */
     function withdrawSingleDepositToL2(address token, uint32 minGasLimit, address receiver) internal {
