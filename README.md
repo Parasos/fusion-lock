@@ -65,6 +65,7 @@ These are the requirements on which the smart contract is designed.
 - The owner can modify the `bridgeProxyAddress`.
 - The owner can modify the `l2TokenAddress`, which is mapped to the `l1TokenAddress`.
 - The owner can allow deposits of any ERC20 token. The ones that are planned for use are listed [in the deployment script](./deploy-contract.sh). For convenience, the tokens are also listed below, but the script is considered the source of truth.
+- If the contract contains higher ERC20 token amounts than have deposited (e.g. if [bridging were to fail](https://github.com/ethereum-optimism/optimism/blob/3a62bccd6c5464891d0d6282264022d240d05b60/packages/contracts-bedrock/contracts/universal/StandardBridge.sol#L172), then the owner can withdraw the tokens to a specified address. This is an extra precaution against tokens getting stuck in the contract.
 
 | Token Name | Token Address                                                                                                        |
 |------------|----------------------------------------------------------------------------------------------------------------------|
@@ -147,6 +148,7 @@ _2) After withdrawal starts_
 - The owner is trusted to set valid bridge proxy address, as well as valid L2 token addresses.
 - `block.timestamp` used extensively in the contract, knowing the limitation discussed in [yellow paper](https://neptunemutual.com/blog/understanding-block-timestamp-manipulation/). As it is the best approach.
 - All the funds are held in a smart contract; a user contract wallet design was discussed by the team but skipped due to the issues discussed [here](https://github.com/bob-collective/FusionLock/issues/1#issuecomment-1948546205)
+- If bridging fails, then the owner can withdraw the ERC20 tokens involved to an arbitrary account. The owner is trusted to refund the tokens to the user if this were to happen. Solutions requiring less trust are possible, but would increase the complexity of the contract too much.
 
 ## Contract Docs
 

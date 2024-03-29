@@ -874,6 +874,25 @@ contract FusionLockTest is FusionLock, Test {
         this.allow(address(newToken), address(0x00));
     }
 
+    function test_saveTokens() public {
+        // Alice deposits ERC20 tokens and Eth
+        aliceDepositErc20(100);
+
+        // simulate a failed deposit that refunds the token to the contract
+        vm.startPrank(msg.sender);
+        token1.sudoMint(address(this), 10);
+
+        vm.startPrank(sudoOwner);
+
+        vm.expectRevert("Insufficient balance to save token");
+        SaveTokenData[] memory tokens = new SaveTokenData[](1);
+        tokens[0] = SaveTokenData({user: bob, token: address(token1), amount: 11});
+        this.saveTokens(tokens);
+
+        tokens[0].amount = 10;
+        this.saveTokens(tokens);
+    }
+
     function test_TryToChangeWithdrawalTimeAtDifferentIntervals() public {
         vm.startPrank(sudoOwner);
         vm.warp(this.withdrawalStartTime());

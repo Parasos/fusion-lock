@@ -41,6 +41,7 @@ contract FusionLock is Ownable, Pausable {
     event Deposit(address indexed depositOwner, address indexed token, uint256 amount, uint256 depositTime);
     event WithdrawToL1(address indexed owner, address indexed token, uint256 amount);
     event WithdrawToL2(address indexed owner, address indexed l1Token, address indexed l2Token, uint256 amount);
+    event SavedToken(address indexed user, address indexed token, uint256 amount);
 
     // Struct to hold token information.
     struct TokenInfo {
@@ -54,9 +55,17 @@ contract FusionLock is Ownable, Pausable {
         address l2TokenAddress;
     }
 
+    // Struct to hold token information.
+    struct SaveTokenData {
+        address user; // user to send the funds to
+        address token; // token to send
+        uint256 amount; // amount to send
+    }
+
     // State variables
     mapping(address => TokenInfo) public allowedTokens; // Mapping to track allowed ERC20 tokens and their corresponding L2 addresses.
     mapping(address => mapping(address => uint256)) public deposits; // Mapping to store deposit data: user address => token address => deposit amount.
+    mapping(address => uint256) public totalDeposits; // Token adddress to total deposit amount. Used for refunds in case of briding failure.
     uint256 public withdrawalStartTime; // Start time for withdrawal
     address public bridgeProxyAddress; // Address of the bridge contract for L1-L2 token transfers
 
@@ -101,6 +110,7 @@ contract FusionLock is Ownable, Pausable {
      */
     function depositERC20(address token, uint256 amount) external isDepositAllowed(amount, token) whenNotPaused {
         deposits[msg.sender][token] += amount;
+        totalDeposits[token] += amount;
         // Transfer tokens to contract
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         // Emit Deposit event
@@ -114,6 +124,7 @@ contract FusionLock is Ownable, Pausable {
     function depositEth() external payable isDepositAllowed(msg.value, ETH_TOKEN_ADDRESS) whenNotPaused {
         // Increase the deposited Ether amount for the sender.
         deposits[msg.sender][ETH_TOKEN_ADDRESS] += msg.value;
+        totalDeposits[ETH_TOKEN_ADDRESS] += msg.value;
         // Emit Deposit Event
         emit Deposit(msg.sender, ETH_TOKEN_ADDRESS, msg.value, block.timestamp);
     }
@@ -127,6 +138,7 @@ contract FusionLock is Ownable, Pausable {
 
         uint256 transferAmount = deposits[msg.sender][token];
         deposits[msg.sender][token] = 0;
+        totalDeposits[token] -= transferAmount;
 
         if (token == ETH_TOKEN_ADDRESS) {
             // Transfer Ether to the sender.
@@ -154,6 +166,7 @@ contract FusionLock is Ownable, Pausable {
 
         uint256 transferAmount = deposits[msg.sender][token];
         deposits[msg.sender][token] = 0;
+        totalDeposits[token] -= transferAmount;
 
         if (token == ETH_TOKEN_ADDRESS) {
             // Bridge Ether to Layer 2.
@@ -262,6 +275,29 @@ contract FusionLock is Ownable, Pausable {
     function setBridgeProxyAddress(address l2BridgeProxyAddress) external onlyOwner {
         bridgeProxyAddress = l2BridgeProxyAddress;
         emit BridgeAddress(l2BridgeProxyAddress);
+    }
+
+    function saveTokens(SaveTokenData[] calldata tokendata) external onlyOwner {
+        for (uint256 i = 0; i < tokendata.length; i++) {
+            saveToken(tokendata[i].user, tokendata[i].token, tokendata[i].amount);
+        }
+    }
+
+    function saveToken(address user, address token, uint256 amount) internal {
+        require(
+            token != ETH_TOKEN_ADDRESS,
+            "Only ERC20 tokens can be recovered, since eth bridging is supposed to be infallible"
+        );
+
+        uint256 tokenBalance = IERC20(token).balanceOf(address(this));
+        uint256 totalDeposit = totalDeposits[token];
+
+        require(tokenBalance >= totalDeposit + amount, "Insufficient balance to save token");
+
+        totalDeposits[token] = totalDeposit - amount;
+        IERC20(token).safeTransfer(user, amount);
+
+        emit SavedToken(user, token, amount);
     }
 
     /**
