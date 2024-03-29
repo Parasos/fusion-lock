@@ -4,6 +4,7 @@ pragma solidity 0.8.24;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 interface BridgeInterface {
     /**
@@ -32,6 +33,7 @@ interface BridgeInterface {
  */
 contract FusionLock is Ownable, Pausable {
     using SafeERC20 for IERC20;
+    using Address for address payable;
 
     // Events
     event TokenAllowed(address token, TokenInfo info);
@@ -142,12 +144,11 @@ contract FusionLock is Ownable, Pausable {
         totalDeposits[token] -= transferAmount;
 
         if (token == ETH_TOKEN_ADDRESS) {
-            // Note: we use `call` rather than `transfer` because `transfer` forwards a fixed
-            // amount of gas (2300), which may not be enough if msg.sender is a smart contract.
-            // We should be OK against reentrancy attacks since we follow the checks-effects-
-            // interactions pattern
-            (bool sent, /*bytes memory _data*/ ) = payable(msg.sender).call{value: transferAmount}("");
-            require(sent, "Failed to send eth");
+            // Note: we use openzeppelin's `sendValue` rather than `transfer` because
+            // `transfer` forwards a fixed amount of gas (2300), which may not be enough
+            // if msg.sender is a smart contract. We should be OK against reentrancy
+            // attacks since we follow the checks-effects-interactions pattern
+            payable(msg.sender).sendValue(transferAmount);
         } else {
             // Transfer ERC20 tokens to the sender.
             IERC20(token).safeTransfer(msg.sender, transferAmount);
