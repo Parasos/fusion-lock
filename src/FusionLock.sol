@@ -305,16 +305,16 @@ contract FusionLock is Ownable, Pausable {
     }
 
     /**
-     * @dev Function to pause contract, Overridden functions from Pausable contract
+     * @dev Function to pause contract. This calls the Pausable contract.
      */
-    function pause() external onlyOwner whenNotPaused {
+    function pause() external onlyOwner {
         super._pause();
     }
 
     /**
-     * @dev Function to unpause contract, Overridden functions from Pausable contract
+     * @dev Function to unpause contract. This calls the Pausable contract.
      */
-    function unpause() external onlyOwner whenPaused {
+    function unpause() external onlyOwner {
         super._unpause();
     }
 
