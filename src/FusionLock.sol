@@ -65,7 +65,7 @@ contract FusionLock is Ownable, Pausable {
     // State variables
     mapping(address => TokenInfo) public allowedTokens; // Mapping to track allowed ERC20 tokens and their corresponding L2 addresses.
     mapping(address => mapping(address => uint256)) public deposits; // Mapping to store deposit data: user address => token address => deposit amount.
-    mapping(address => uint256) public totalDeposits; // Token adddress to total deposit amount. Used for refunds in case of briding failure.
+    mapping(address => uint256) public totalDeposits; // Mapping to track total deposit amount per token address. Used for refunds in case of bridging failure.
     uint256 public withdrawalStartTime; // Start time for withdrawal
     address public bridgeProxyAddress; // Address of the bridge contract for L1-L2 token transfers
 
@@ -283,12 +283,26 @@ contract FusionLock is Ownable, Pausable {
         emit BridgeAddress(l2BridgeProxyAddress);
     }
 
-    function saveTokens(SaveTokenData[] calldata tokendata) external onlyOwner {
-        for (uint256 i = 0; i < tokendata.length; i++) {
-            saveToken(tokendata[i].user, tokendata[i].token, tokendata[i].amount);
+    /**
+     * @dev Function to save multiple ERC20 tokens to be later recovered by the owner.
+     * This function allows the contract owner to save ERC20 tokens in the contract's balance,
+     * making them available for later recovery.
+     * @param tokenData An array of structs containing information about the tokens to be saved.
+     */
+    function saveTokens(SaveTokenData[] calldata tokenData) external onlyOwner {
+        for (uint256 i = 0; i < tokenData.length; i++) {
+            saveToken(tokenData[i].user, tokenData[i].token, tokenData[i].amount);
         }
     }
 
+    /**
+     * @dev Internal function to save an ERC20 token to be later recovered by the owner.
+     * This function transfers the specified amount of ERC20 token from the contract's balance
+     * to the specified user's address.
+     * @param user Address of the user to send the tokens to.
+     * @param token Address of the ERC20 token to be saved.
+     * @param amount Amount of tokens to be saved.
+     */
     function saveToken(address user, address token, uint256 amount) internal {
         require(
             token != ETH_TOKEN_ADDRESS,

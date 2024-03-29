@@ -890,6 +890,8 @@ contract FusionLockTest is FusionLock, Test {
         this.saveTokens(tokens);
 
         tokens[0].amount = 10;
+        vm.expectEmit();
+        emit SavedToken(bob, address(token1), tokens[0].amount);
         this.saveTokens(tokens);
     }
 
