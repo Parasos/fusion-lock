@@ -394,6 +394,11 @@
         "name": "tokens",
         "type": "address[]",
         "internalType": "address[]"
+      },
+      {
+        "name": "receiver",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -412,6 +417,11 @@
         "name": "minGasLimit",
         "type": "uint32",
         "internalType": "uint32"
+      },
+      {
+        "name": "receiver",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -605,6 +615,12 @@
         "internalType": "address"
       },
       {
+        "name": "receiver",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
         "name": "token",
         "type": "address",
         "indexed": true,
@@ -630,6 +646,12 @@
         "internalType": "address"
       },
       {
+        "name": "receiver",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
         "name": "l1Token",
         "type": "address",
         "indexed": true,
@@ -638,7 +660,7 @@
       {
         "name": "l2Token",
         "type": "address",
-        "indexed": true,
+        "indexed": false,
         "internalType": "address"
       },
       {

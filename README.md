@@ -62,8 +62,7 @@ These are the requirements on which the smart contract is designed.
 - The owner of the FusionLock contract will be a [Safe multisig](https://safe.global/).
 - The owner can pause and resume all user functionalities.
 - The owner can reduce `withdrawalStartTime`.
-- The owner can modify the global `bridgeProxyAddress`.
-- The owner can set a L1 bridge override for any of the allowed tokens.
+- The owner can modify the `bridgeProxyAddress`.
 - The owner can modify the `l2TokenAddress`, which is mapped to the `l1TokenAddress`.
 - The owner can allow deposits of any ERC20 token. The ones that are planned for use are listed [in the deployment script](./deploy-contract.sh). For convenience, the tokens are also listed below, but the script is considered the source of truth.
 - If the contract contains higher ERC20 token amounts than have deposited (e.g. if [bridging were to fail](https://github.com/ethereum-optimism/optimism/blob/3a62bccd6c5464891d0d6282264022d240d05b60/packages/contracts-bedrock/contracts/universal/StandardBridge.sol#L172), then the owner can withdraw the tokens to a specified address. This is an extra precaution against tokens getting stuck in the contract.
@@ -121,9 +120,8 @@ Note: All timestamps are provided for reference; different timestamps will be us
 
 The following **owner operations** are allowed at any time:
 - Can pause user functionality.
-- Can set global bridge proxy address
+- Can set bridge proxy address.
 - Can change the L2 address of any token. 
-- Can set a L1 bridge override for any token.
 
 _1) During deposit_
 
