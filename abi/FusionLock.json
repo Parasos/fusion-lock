@@ -54,6 +54,11 @@
         "name": "l2TokenAddress",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "l1BridgeAddressOverride",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -77,6 +82,11 @@
       },
       {
         "name": "l2TokenAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "l1BridgeAddressOverride",
         "type": "address",
         "internalType": "address"
       }
@@ -245,6 +255,11 @@
             "name": "l2TokenAddress",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "l1BridgeAddressOverride",
+            "type": "address",
+            "internalType": "address"
           }
         ]
       }
@@ -394,11 +409,6 @@
         "name": "tokens",
         "type": "address[]",
         "internalType": "address[]"
-      },
-      {
-        "name": "receiver",
-        "type": "address",
-        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -566,6 +576,11 @@
             "name": "l2TokenAddress",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "l1BridgeAddressOverride",
+            "type": "address",
+            "internalType": "address"
           }
         ]
       }
@@ -610,12 +625,6 @@
     "inputs": [
       {
         "name": "owner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "receiver",
         "type": "address",
         "indexed": true,
         "internalType": "address"

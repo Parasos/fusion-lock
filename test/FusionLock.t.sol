@@ -103,7 +103,7 @@ contract FusionLockTest is FusionLock, Test {
             // keep owner of L2 token as bridge address
             ArbitaryErc20 l2Token = new ArbitaryErc20(l2TokenName, symbol, bridgeProxyAddress);
 
-            this.allow(address(listErc20Tokens[i]), address(l2Token));
+            this.allow(address(listErc20Tokens[i]), address(l2Token), address(0x00));
 
             vm.stopPrank();
         }
@@ -399,7 +399,7 @@ contract FusionLockTest is FusionLock, Test {
         }
 
         vm.startPrank(alice);
-        this.withdrawDepositsToL1(listOfTokens, alice);
+        this.withdrawDepositsToL1(listOfTokens);
 
         for (uint256 tokenId = 0; tokenId < numberOfTokens; tokenId++) {
             // user gets back his lock balance
@@ -475,8 +475,8 @@ contract FusionLockTest is FusionLock, Test {
         vm.startPrank(alice);
         vm.expectEmit();
         singleToken[0] = address(token1);
-        emit WithdrawToL1(alice, alice, address(token1), numberOfDeposits * amount);
-        this.withdrawDepositsToL1(singleToken, alice);
+        emit WithdrawToL1(alice, address(token1), numberOfDeposits * amount);
+        this.withdrawDepositsToL1(singleToken);
 
         // alice gets back her locked balance
         assertEq(token1.balanceOf(alice), amount * numberOfDeposits);
@@ -534,8 +534,8 @@ contract FusionLockTest is FusionLock, Test {
 
             // withdraw
             vm.expectEmit();
-            emit WithdrawToL1(withdrawCaller, withdrawCaller, address(token1), amount);
-            this.withdrawDepositsToL1(singleToken, withdrawCaller);
+            emit WithdrawToL1(withdrawCaller, address(token1), amount);
+            this.withdrawDepositsToL1(singleToken);
 
             // users balance updated
             assertEq(token1.balanceOf(withdrawCaller), amount);
@@ -587,9 +587,9 @@ contract FusionLockTest is FusionLock, Test {
 
         vm.startPrank(alice);
         vm.expectEmit();
-        emit WithdrawToL1(alice, alice, ETH_TOKEN_ADDRESS, numberOfDeposits * amount);
+        emit WithdrawToL1(alice, ETH_TOKEN_ADDRESS, numberOfDeposits * amount);
         singleToken[0] = ETH_TOKEN_ADDRESS;
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
 
         // user unlocks all his balance
         assertEq(alice.balance, amount * numberOfDeposits);
@@ -635,8 +635,8 @@ contract FusionLockTest is FusionLock, Test {
 
             // expected event
             vm.expectEmit();
-            emit WithdrawToL1(withdrawCaller, withdrawCaller, ETH_TOKEN_ADDRESS, amount);
-            this.withdrawDepositsToL1(singleToken, withdrawCaller);
+            emit WithdrawToL1(withdrawCaller, ETH_TOKEN_ADDRESS, amount);
+            this.withdrawDepositsToL1(singleToken);
 
             // user unlocks his balance
             assertEq(withdrawCaller.balance, amount);
@@ -709,7 +709,7 @@ contract FusionLockTest is FusionLock, Test {
         vm.warp(this.withdrawalStartTime());
         vm.startPrank(alice);
         singleToken[0] = address(token1);
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
     }
 
     // helper method to withdraw eth on behalf of deposit owner
@@ -718,7 +718,7 @@ contract FusionLockTest is FusionLock, Test {
         vm.warp(this.withdrawalStartTime());
         vm.startPrank(alice);
         singleToken[0] = ETH_TOKEN_ADDRESS;
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
     }
 
     // helper method to bridge erc20 on behalf of deposit owner
@@ -734,7 +734,7 @@ contract FusionLockTest is FusionLock, Test {
         vm.warp(this.withdrawalStartTime());
         vm.startPrank(alice);
         singleToken[0] = address(ETH_TOKEN_ADDRESS);
-        this.withdrawDepositsToL2(singleToken, MIN_GAS_LIMIT, address(this));
+        this.withdrawDepositsToL2(singleToken, MIN_GAS_LIMIT, alice);
     }
 
     function test_WithdrawNotAllowedWhenFunctionalityPaused() public {
@@ -771,12 +771,12 @@ contract FusionLockTest is FusionLock, Test {
         singleToken[0] = address(token1);
         vm.startPrank(bob);
         vm.expectRevert("Withdrawal completed or token never deposited");
-        this.withdrawDepositsToL1(singleToken, address(this));
+        this.withdrawDepositsToL1(singleToken);
 
         singleToken[0] = ETH_TOKEN_ADDRESS;
         vm.startPrank(bob);
         vm.expectRevert("Withdrawal completed or token never deposited");
-        this.withdrawDepositsToL1(singleToken, address(this));
+        this.withdrawDepositsToL1(singleToken);
 
         singleToken[0] = ETH_TOKEN_ADDRESS;
         vm.startPrank(bob);
@@ -796,12 +796,12 @@ contract FusionLockTest is FusionLock, Test {
         aliceWithdrawErc20OnL1();
         singleToken[0] = address(token1);
         vm.expectRevert("Withdrawal completed or token never deposited");
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
 
         aliceWithdrawEthOnL1();
         singleToken[0] = ETH_TOKEN_ADDRESS;
         vm.expectRevert("Withdrawal completed or token never deposited");
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
     }
 
     function test_TryReBridgingForL2() public {
@@ -828,10 +828,10 @@ contract FusionLockTest is FusionLock, Test {
         vm.warp(this.withdrawalStartTime() - 1);
         vm.expectRevert("Withdrawal not started");
         singleToken[0] = address(token1);
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
         vm.expectRevert("Withdrawal not started");
         singleToken[0] = ETH_TOKEN_ADDRESS;
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
         assertFalse(this.isWithdrawalTimeStarted());
 
         // set time to release all deposits
@@ -840,9 +840,9 @@ contract FusionLockTest is FusionLock, Test {
         assertTrue(this.isWithdrawalTimeStarted());
 
         singleToken[0] = ETH_TOKEN_ADDRESS;
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
         singleToken[0] = address(token1);
-        this.withdrawDepositsToL1(singleToken, alice);
+        this.withdrawDepositsToL1(singleToken);
     }
 
     function test_TryWithdrawForL2AtVaryingTimes() public {
@@ -857,18 +857,18 @@ contract FusionLockTest is FusionLock, Test {
         // Attempt to withdraw before start time
         vm.warp(this.withdrawalStartTime() - 1);
         vm.expectRevert("Withdrawal not started");
-        this.withdrawDepositsToL2(listOfTokens, MIN_GAS_LIMIT, address(this));
+        this.withdrawDepositsToL2(listOfTokens, MIN_GAS_LIMIT, alice);
 
         // set time to release all deposits
         vm.warp(this.withdrawalStartTime());
-        this.withdrawDepositsToL2(listOfTokens, MIN_GAS_LIMIT, address(this));
+        this.withdrawDepositsToL2(listOfTokens, MIN_GAS_LIMIT, alice);
     }
 
     function test_AllowNewToken() public {
         vm.startPrank(sudoOwner);
         ArbitaryErc20 newToken = new ArbitaryErc20("Token X", "TokX", msg.sender);
         assertFalse(this.getTokenInfo(address(newToken)).isAllowed);
-        this.allow(address(newToken), address(0x00));
+        this.allow(address(newToken), address(0x00), address(0x00));
         assertTrue(this.getTokenInfo(address(newToken)).isAllowed);
     }
 
@@ -877,7 +877,7 @@ contract FusionLockTest is FusionLock, Test {
         vm.warp(this.withdrawalStartTime());
         ArbitaryErc20 newToken = new ArbitaryErc20("Token X", "TokX", msg.sender);
         vm.expectRevert("Withdrawal has started, token allowance cannot be modified");
-        this.allow(address(newToken), address(0x00));
+        this.allow(address(newToken), address(0x00), address(0x00));
     }
 
     function test_saveTokens() public {
