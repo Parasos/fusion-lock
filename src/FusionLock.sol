@@ -285,9 +285,8 @@ contract FusionLock is Ownable, Pausable {
     }
 
     /**
-     * @dev Function to save multiple ERC20 tokens to be later recovered by the owner.
-     * This function allows the contract owner to save ERC20 tokens in the contract's balance,
-     * making them available for later recovery.
+     * @dev This function allows the contract owner to recover ERC20 tokens that would
+     * otherwise stay locked in the contract forever.
      * @param tokenData An array of structs containing information about the tokens to be saved.
      */
     function saveTokens(SaveTokenData[] calldata tokenData) external onlyOwner {
@@ -297,9 +296,9 @@ contract FusionLock is Ownable, Pausable {
     }
 
     /**
-     * @dev Internal function to save an ERC20 token to be later recovered by the owner.
-     * This function transfers the specified amount of ERC20 token from the contract's balance
-     * to the specified user's address.
+     * @dev Internal function to recover an ERC20 token that would otherwise stay locked in
+     * the contract forever. This function transfers the specified amount of ERC20 token
+     * from the contract's balance to the specified user's address.
      * @param user Address of the user to send the tokens to.
      * @param token Address of the ERC20 token to be saved.
      * @param amount Amount of tokens to be saved.
