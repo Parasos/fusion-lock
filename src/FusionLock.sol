@@ -37,7 +37,7 @@ contract FusionLock is Ownable, Pausable {
 
     // Events
     event TokenAllowed(address token, TokenInfo info);
-    event TokenL2DepositAddressChange(address l1Token, address l2Token);
+    event TokenDataChange(address l1Token, address l2Token, address l1Bridge);
     event BridgeAddress(address bridgeAddress);
     event WithdrawalTimeUpdated(uint256 endTime);
     event Deposit(address indexed depositOwner, address indexed token, uint256 amount, uint256 depositTime);
@@ -55,9 +55,10 @@ contract FusionLock is Ownable, Pausable {
     }
 
     // Struct to hold L1 and L2 token addresses.
-    struct TokenAddressPair {
+    struct TokenBridgingData {
         address l1TokenAddress;
         address l2TokenAddress;
+        address l1BridgeAddressOverride;
     }
 
     // Struct to hold token information.
@@ -263,21 +264,23 @@ contract FusionLock is Ownable, Pausable {
     }
 
     /**
-     * @dev Function to change the Layer 2 (L2) address of tokens that were allowed for deposit.
-     * This function allows the contract owner to change the L2 address of tokens that were previously allowed for deposit.
-     * @param tokenPairs An array of structs, each containing a pair of addresses representing the Layer 1 (L1) token address
-     *                   and its corresponding Layer 2 (L2) token address.
+     * @dev Function to change L2 address and the bridge address of tokens that were allowed for deposit.
+     * This function allows the contract owner to change the L2 address and the L1 bridge address for tokens
+     * that were previously allowed for deposit.
+     * @param tokenData An array of structs, each containing the Layer 1 (L1) token address, its (L1) bridge
+     *                     address, and its Layer 2 (L2) token address.
      */
-    function changeMultipleL2TokenAddresses(TokenAddressPair[] memory tokenPairs) external onlyOwner {
-        for (uint256 i = 0; i < tokenPairs.length; i++) {
-            TokenAddressPair memory pair = tokenPairs[i];
+    function changeMultipleL2TokenData(TokenBridgingData[] memory tokenData) external onlyOwner {
+        for (uint256 i = 0; i < tokenData.length; i++) {
+            TokenBridgingData memory token = tokenData[i];
             // Ensure the token is allowed for deposit before changing its L2 address
-            require(allowedTokens[pair.l1TokenAddress].isAllowed, "Need to allow token before changing L2 address");
+            require(allowedTokens[token.l1TokenAddress].isAllowed, "Need to allow token before changing token data");
 
             // Update the L2 address of the token
-            allowedTokens[pair.l1TokenAddress].l2TokenAddress = pair.l2TokenAddress;
+            allowedTokens[token.l1TokenAddress].l2TokenAddress = token.l2TokenAddress;
+            allowedTokens[token.l1TokenAddress].l1BridgeAddressOverride = token.l1BridgeAddressOverride;
 
-            emit TokenL2DepositAddressChange(pair.l1TokenAddress, pair.l2TokenAddress);
+            emit TokenDataChange(token.l1TokenAddress, token.l2TokenAddress, token.l1BridgeAddressOverride);
         }
     }
 

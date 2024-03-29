@@ -108,12 +108,12 @@
   },
   {
     "type": "function",
-    "name": "changeMultipleL2TokenAddresses",
+    "name": "changeMultipleL2TokenData",
     "inputs": [
       {
-        "name": "tokenPairs",
+        "name": "tokenData",
         "type": "tuple[]",
-        "internalType": "struct FusionLock.TokenAddressPair[]",
+        "internalType": "struct FusionLock.TokenBridgingData[]",
         "components": [
           {
             "name": "l1TokenAddress",
@@ -122,6 +122,11 @@
           },
           {
             "name": "l2TokenAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "l1BridgeAddressOverride",
             "type": "address",
             "internalType": "address"
           }
@@ -589,7 +594,7 @@
   },
   {
     "type": "event",
-    "name": "TokenL2DepositAddressChange",
+    "name": "TokenDataChange",
     "inputs": [
       {
         "name": "l1Token",
@@ -599,6 +604,12 @@
       },
       {
         "name": "l2Token",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "l1Bridge",
         "type": "address",
         "indexed": false,
         "internalType": "address"
