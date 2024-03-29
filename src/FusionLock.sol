@@ -332,11 +332,9 @@ contract FusionLock is Ownable, Pausable {
         );
 
         uint256 tokenBalance = IERC20(token).balanceOf(address(this));
-        uint256 totalDeposit = totalDeposits[token];
 
-        require(tokenBalance >= totalDeposit + amount, "Insufficient balance to save token");
+        require(tokenBalance >= totalDeposits[token] + amount, "Insufficient balance to save token");
 
-        totalDeposits[token] = totalDeposit - amount;
         IERC20(token).safeTransfer(user, amount);
 
         emit SavedToken(user, token, amount);
